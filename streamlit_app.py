@@ -19,15 +19,25 @@ def reinit_bot():
 
 
 def handle_chat_input(prompt):
-    if st.session_state.chatbot is None:
-        st.markdown("Debes insertar tu api key para usar el bot")
-    with st.chat_message("user"):
-        st.markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    if prompt == 'Lucas':
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
 
-    with st.chat_message("assistant"):
-        response = st.session_state.chatbot.ask_question(prompt)
-        st.markdown(response)
+        with st.chat_message("assistant"):
+            response = "Ama mucho a Joaqui"
+            st.markdown(response)
+    else:
+        if st.session_state.chatbot is None:
+            st.markdown("Debes insertar tu api key para usar el bot")
+            return
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        with st.chat_message("assistant"):
+            response = st.session_state.chatbot.ask_question(prompt)
+            st.markdown(response)
 
     st.session_state.messages.append({"role": "assistant", "content": response})
 
