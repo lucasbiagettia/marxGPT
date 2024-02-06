@@ -16,6 +16,8 @@ class Chatbot:
 
 
     def initialize(self, api_key):
+        self.openai_model = self.load_openai_model(openai_api_key=api_key)
+
    
         embed_provider = EmbeddingsProvider()
         while not embed_provider.initialized:
@@ -23,18 +25,7 @@ class Chatbot:
 
         self.embeddings, self.knowledge_base = embed_provider.get_embeddings()
 
-        try:
-            self.openai_model = self.load_openai_model(openai_api_key=api_key)
-        except request.exceptions.HTTPError as e:
-            if e.response.status_code == 401:
-                # Código 401 indica que la clave es incorrecta
-                print("Error: La API key es incorrecta.")
-            else:
-                # Manejar otros errores HTTP si es necesario
-                print(f"Error HTTP: {e.response.status_code}")
-        except Exception as e:
-            # Manejar otras excepciones si es necesario
-            print(f"Error inesperado: {e}")
+        
         self.prompt = self.load_prompt_template()
         self.qa_chain : LLMChain = LLMChain(llm=self.openai_model, prompt=self.prompt)
         self.is_inicialized = True

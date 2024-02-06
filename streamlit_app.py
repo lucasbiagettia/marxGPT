@@ -1,20 +1,24 @@
+from multiprocessing import AuthenticationError
 import streamlit as st
-
 from app import Chatbot
-
-
 
 
 if "chatbot" not in st.session_state:
     st.session_state.chatbot = None
 
+if "initialized" not in st.session_state:
+    st.session_state.initialized = False
+
 def initialize_bot(api_key):
     if st.session_state.chatbot is None:
         st.session_state.chatbot = Chatbot(api_key)
+        st.session_state.initialized = True
     pass
 
 def reinit_bot():
     st.session_state.chatbot = None
+    st.session_state.inicialized = False
+
 
 
 
@@ -36,11 +40,18 @@ def handle_chat_input(prompt):
         st.session_state.messages.append({"role": "user", "content": prompt})
 
         with st.chat_message("assistant"):
-            response = st.session_state.chatbot.ask_question(prompt)
+            try:
+                response = st.session_state.chatbot.ask_question(prompt)
+
+            except Exception as e:
+                reinit_bot()
+                st.markdown("Se ha producido un error inesperado")
+                return
             st.markdown(response)
 
     st.session_state.messages.append({"role": "assistant", "content": response})
-
+def is_inicialized():
+    return st.session_state.chatbot is not None and st.session_state.chatbot.is_inicialized
 
 
 def print_all_messages(messages):
@@ -65,11 +76,12 @@ def main():
         
     
     print_all_messages(st.session_state.messages)
-    if st.session_state.chatbot is not None and st.session_state.chatbot.is_inicialized:
+    if st.session_state.initialized == True:
         prompt = st.chat_input("Preguntame acerca del manifiesto comunista")
         if prompt:
             handle_chat_input(prompt)
 
+    st.session_state.inicialized = is_inicialized()
 
 if __name__ == "__main__":
     main()
